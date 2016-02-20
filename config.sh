@@ -1,5 +1,18 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
+
+# ETCD
+ETCD_VERSION="2.2.5"
+ETCD="etcd-v${ETCD_VERSION}-linux-amd64"
+ETCD_FOLDER="/opt/${ETCD}"
+
+# FLANNEL
+INTERFACE="enp3s0"
+FLANNEL_VERSION="0.5.5"
+FLANNEL="flannel-${FLANNEL_VERSION}-linux-amd64"
+FLANNEL_URL="https://github.com/coreos/flannel/releases/download/v${FLANNEL_VERSION}/${FLANNEL}.tar.gz"
+FLANNEL_FOLDER="/opt/flannel-${FLANNEL_VERSION}"
+
 
 VERSION="1.1.7"
 KUBERNETES_FOLDER="/opt/kubernetes"

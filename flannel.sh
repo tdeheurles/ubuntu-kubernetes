@@ -1,12 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
-# USER DEFINED
-INTERFACE="enp3s0"
-FLANNEL_VERSION="0.5.5"
-FLANNEL="flannel-${FLANNEL_VERSION}-linux-amd64"
-FLANNEL_URL="https://github.com/coreos/flannel/releases/download/v${FLANNEL_VERSION}/${FLANNEL}.tar.gz"
-FLANNEL_FOLDER="/opt/flannel-${FLANNEL_VERSION}"
+. ./config.sh
 
 # DOWNLOAD
 cd /opt
@@ -15,7 +10,7 @@ sudo tar xzvf ${FLANNEL}.tar.gz
 sudo rm ${FLANNEL}.tar.gz
 
 # CONFIGURE
-etcdctl set flannel/config "{\"Network\": \"10.2.0.0/16\"}"
+${ETCD_FOLDER}/etcdctl set flannel/config "{\"Network\": \"10.2.0.0/16\"}"
 
 # SET AS A SERVICE
 cd ${FLANNEL_FOLDER}

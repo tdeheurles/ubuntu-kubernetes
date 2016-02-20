@@ -1,9 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
-ETCD_VERSION="2.2.5"
-ETCD="etcd-v${ETCD_VERSION}-linux-amd64"
-ETCD_FOLDER="/opt/${ETCD}"
+. ./config.sh
 
 # DOWNLOAD
 cd /opt
@@ -29,11 +27,3 @@ EOF
 sudo cp etcd.service /etc/systemd/system/etcd.service
 sudo systemctl enable etcd
 sudo systemctl start etcd
-
-# ADD TO PATH
-cat <<EOF >> ~/.zshrc
-
-# ETCD
-# ====
-export PATH="\${PATH}:${ETCD_FOLDER}"
-EOF

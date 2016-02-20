@@ -3,20 +3,23 @@ set -euo pipefail
 
 # INSTALL DOCKER
 #============================
-sudo apt-get update
-sudo apt-get install apt-transport-https ca-certificates
+INSTALL="sudo apt-get install -y"
+UPDATE="sudo apt-get update"
+
+${UPDATE}
+${INSTALL} apt-transport-https ca-certificates
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 echo "deb https://apt.dockerproject.org/repo ubuntu-wily main" > /tmp/docker.list
 sudo mv /tmp/docker.list /etc/apt/sources.list.d/docker.list
 
-sudo apt-get update
+${UPDATE}
 sudo apt-get purge lxc-docker || true
 sudo apt-cache policy docker-engine || true
 
-sudo apt-get update
-sudo apt-get install linux-image-extra-$(uname -r)
-sudo apt-get install docker-engine -y
+${UPDATE}
+${INSTALL} linux-image-extra-$(uname -r)
+${INSTALL} docker-engine
 sudo usermod -aG docker ${USER}
 sudo systemctl stop docker
 
