@@ -1,6 +1,8 @@
 #!/bin/bash
 #set -euo pipefail
 
+TARGETED_USER="vagrant"
+
 # ETCD
 ETCD_VERSION="2.2.5"
 ETCD="etcd-v${ETCD_VERSION}-linux-amd64"
@@ -13,7 +15,7 @@ FLANNEL="flannel-${FLANNEL_VERSION}-linux-amd64"
 FLANNEL_URL="https://github.com/coreos/flannel/releases/download/v${FLANNEL_VERSION}/${FLANNEL}.tar.gz"
 FLANNEL_FOLDER="/opt/flannel-${FLANNEL_VERSION}"
 
-
+# KUBERNETES
 VERSION="1.1.7"
 KUBERNETES_FOLDER="/opt/kubernetes"
 
@@ -31,7 +33,7 @@ CADVISOR_PORT="0"
 
 KUBERNETES_MANIFEST_FOLDER="/etc/kubernetes/manifests"
 SSL_PATH="/etc/ssl/kubernetes/certificates"
-TEMPSSL_PATH="${KUBERNETES_MANIFEST_FOLDER}/certificates"
+TEMP_SSL_PATH="certificates"
 
 CA_PEM_NAME="ca.pem"
 CA_KEY_PEM_NAME="ca-key.pem"

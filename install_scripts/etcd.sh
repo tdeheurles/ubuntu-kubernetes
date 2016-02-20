@@ -2,6 +2,9 @@
 #set -euo pipefail
 
 . ./config.sh
+. ./helpers.sh
+
+print_title1 "ETCD"
 
 # DOWNLOAD
 cd /opt
@@ -11,6 +14,7 @@ sudo tar xzvf ${ETCD}.tar.gz
 sudo rm ${ETCD}.tar.gz
 
 # SET AS A SERVICE
+sudo chown ${TARGETED_USER}:${TARGETED_USER} ${ETCD_FOLDER}
 cd ${ETCD_FOLDER}
 cat <<EOF > etcd.service
 [Unit]
@@ -22,6 +26,14 @@ ExecStart=/opt/${ETCD}/etcd
 
 [Install]
 WantedBy=multi-user.target
+EOF
+
+cat <<EOF >> /home/vagrant/.bashrc
+
+# ETCD
+# ====
+alias etcdctl="${ETCD_FOLDER}/etcdctl"
+alias elsa="etcdctl ls --recursive"
 EOF
 
 sudo cp etcd.service /etc/systemd/system/etcd.service

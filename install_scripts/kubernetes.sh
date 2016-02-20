@@ -2,36 +2,45 @@
 set -euo pipefail
 
 . ./config.sh
+. ./helpers.sh
 
+print_title1 "KUBERNETES"
+
+sudo chmod 755 generate_certificates.sh 
 ./generate_certificates.sh
 sudo mkdir -p ${SSL_PATH}
+echo "temp: ====> ${TEMP_SSL_PATH}" 
+echo "SSL_PATH: ===> ${SSL_PATH}"
 sudo mv ${TEMP_SSL_PATH}/* ${SSL_PATH}/
 
 sudo mkdir -p ${KUBERNETES_FOLDER}
 cd ${KUBERNETES_FOLDER}
+sudo chown ${TARGETED_USER}:${TARGETED_USER} ${KUBERNETES_FOLDER}
 
-DOCKER_SERVICE=(kubelet kube-apiserver kube-proxy kube-scheduler kube-controller)
-for SERVICE in "kubectl" 
+KUBERNETES_SERVICE=(kubelet kube-apiserver kube-proxy kube-scheduler kube-controller)
+for SERVICE in "kubectl" ${KUBERNETES_SERVICE[@]} 
 do
     sudo curl -O https://storage.googleapis.com/kubernetes-release/release/v${VERSION}/bin/linux/amd64/${SERVICE}
     sudo chmod 755 ${SERVICE}
 done
 
-cat <<EOF >> ~/.zshrc
+cat <<EOF >> ~/.bashrc
 
 # KUBERNETES
 # ==========
 
-export PATH="\${PATH}:${KUBERNETES_FOLDER}"
+alias kubectl="${KUBERNETES_FOLDER}/kubectl"
 EOF
 
+sudo chmown vagrant:vagrant ${KUBERNETES_FOLDER}
+
 # API SERVER
-cat <<EOF >> kube-apiserver.service
+cat <<EOF > kube-apiserver.service
 [Unit]
 Description=Kubernetes apiserver
 Documentation=https://github.com/kubernetes/kubernetes
-Requires=flanneld.service
-After=flanneld.service
+Requires=flannel.service
+After=flannel.service
 
 [Service]
 ExecStart=${KUBERNETES_FOLDER}/kube-apiserver                \
@@ -52,18 +61,18 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-EOF 
+EOF
 
 # KUBELET
 cat <<EOF >> kubelet.service
 [Unit]
 Description=Kubernetes Kubelet
 Documentation=https://github.com/kubernetes/kubernetes
-Requires=flanneld.service
-After=flanneld.service
+Requires=flannel.service
+After=flannel.service
 
 [Service]
-ExecStartPre=/usr/bin/mkdir -p ${KUBERNETES_MANIFEST_FOLDER}
+ExecStartPre=/bin/mkdir -p ${KUBERNETES_MANIFEST_FOLDER}
 ExecStart=${KUBERNETES_FOLDER}/kubelet     \
     --api-servers=http://127.0.0.1:8080    \
     --register-node=true                   \
@@ -78,15 +87,15 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-EOF 
+EOF
 
 # PROXY
 cat <<EOF >> kube-proxy.service
 [Unit]
 Description=Kubernetes proxy
 Documentation=https://github.com/kubernetes/kubernetes
-Requires=flanneld.service
-After=flanneld.service
+Requires=flannel.service
+After=flannel.service
 
 [Service]
 ExecStart=${KUBERNETES_FOLDER}/kube-proxy \
@@ -97,15 +106,15 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-EOF 
+EOF
 
 # CONTROLLER MANAGER
 cat <<EOF >> kube-controller.service
 [Unit]
 Description=Kubernetes controller-manager
 Documentation=https://github.com/kubernetes/kubernetes
-Requires=flanneld.service
-After=flanneld.service
+Requires=flannel.service
+After=flannel.service
 
 [Service]
 ExecStart=${KUBERNETES_FOLDER}/kube-controller                       \
@@ -117,15 +126,15 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-EOF 
+EOF
 
 # SCHEDULER
 cat <<EOF >> kube-scheduler.service
 [Unit]
 Description=Kubernetes scheduler
 Documentation=https://github.com/kubernetes/kubernetes
-Requires=flanneld.service
-After=flanneld.service
+Requires=flannel.service
+After=flannel.service
 
 [Service]
 ExecStart=${KUBERNETES_FOLDER}/kube-scheduler \
@@ -157,3 +166,11 @@ contexts:
   name: kubelet-context
 current-context: kubelet-context
 EOF
+
+for SERVICE in ${KUBERNETES_SERVICE[@]}
+do
+    sudo mv ${SERVICE}.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable ${SERVICE}
+    sudo systemctl start ${SERVICE}  
+done

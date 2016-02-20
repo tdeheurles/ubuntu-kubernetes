@@ -1,8 +1,10 @@
 #! /bin/bash
 set -euo pipefail
 
-# INSTALL DOCKER
-#============================
+. ./helpers.sh
+
+print_title1 "DOCKER"
+
 INSTALL="sudo apt-get install -y"
 UPDATE="sudo apt-get update"
 
@@ -20,7 +22,7 @@ sudo apt-cache policy docker-engine || true
 ${UPDATE}
 ${INSTALL} linux-image-extra-$(uname -r)
 ${INSTALL} docker-engine
-sudo usermod -aG docker ${USER}
+sudo usermod -aG docker vagrant
 sudo systemctl stop docker
 
 cat <<EOF > /tmp/docker.service
@@ -44,12 +46,12 @@ TimeoutStartSec=0
 WantedBy=multi-user.target
 EOF
 sudo mv /tmp/docker.service /etc/systemd/system/docker.service
-
 sudo systemctl daemon-reload
 sudo systemctl start docker
-sudo systemctl enable docker
 
-# TEST
-# sudo apt-get install -y bridge-utils
-# sudo ip link set dev docker0 down
-# sudo brctl delbr docker0
+cat <<EOF >> /home/vagrant/.bashrc
+
+# DOCKER
+# ======
+alias dps="docker ps" 
+EOF

@@ -66,6 +66,7 @@ Vagrant.configure(2) do |config|
   # documentation for more information about their specific syntax and use.
   # config.vm.provision "shell", path: "./install_zsh.sh"
   [
+    "helpers.sh",
     "config.sh",
     "etcd.sh",
     "flannel.sh",
@@ -74,9 +75,9 @@ Vagrant.configure(2) do |config|
     "kubernetes.sh",
   ].each do |script| 
     config.vm.provision "file", 
-        source:      script, 
+        source:      "./install_scripts/" + script, 
         destination: "/tmp/" + script
   end
   
-  config.vm.provision "shell", path: "./install.sh"
+  config.vm.provision "shell", path: "./install_scripts/install.sh"
 end

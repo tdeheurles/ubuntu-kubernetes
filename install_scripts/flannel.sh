@@ -2,6 +2,9 @@
 #set -euo pipefail
 
 . ./config.sh
+. ./helpers.sh
+
+print_title1 "FLANNEL"
 
 # DOWNLOAD
 cd /opt
@@ -13,6 +16,7 @@ sudo rm ${FLANNEL}.tar.gz
 ${ETCD_FOLDER}/etcdctl set flannel/config "{\"Network\": \"10.2.0.0/16\"}"
 
 # SET AS A SERVICE
+chown ${TARGETED_USER}:${TARGETED_USER} ${FLANNEL_FOLDER} 
 cd ${FLANNEL_FOLDER}
 cat <<EOF > flannel.service
 [Unit]
